@@ -1,0 +1,34 @@
+{
+  "name": "TL Car Report",
+  "version": "1.0",
+  "description": "TL Car Report Taker",
+  "permissions": [
+    "cookies",
+    "tabs",
+    "scripting",
+    "storage",
+    "activeTab",
+    "background",
+    "webRequest"
+  ],
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "host_permissions": [
+    "*://*/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "*://*/*"
+      ],
+      "js": [
+        "content.js"
+      ]
+    }
+  ],
+  "manifest_version": 3
+}
