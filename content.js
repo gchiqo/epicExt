@@ -4,28 +4,6 @@ console.log('content script');
 function checkAndRedirect() {
     console.log('Checking page content and URL');
 
-    function observeElement() {
-        const targetElementSelector = "#outline > div.report-head > div.report-head__text > div:nth-child(1) > h1";
-
-        // Create a MutationObserver to watch for changes in the DOM
-        const observer = new MutationObserver((mutationsList) => {
-            for (const mutation of mutationsList) {
-                if (mutation.type === 'childList') {
-                    const element = document.querySelector(targetElementSelector);
-                    if (element) {
-                        console.log('Element rendered');
-                        scrapeReportData(); // Call the scraping function
-                        observer.disconnect(); // Stop observing after the element is found
-                        break;
-                    }
-                }
-            }
-        });
-
-        // Start observing the document body for changes
-        observer.observe(document.body, { childList: true, subtree: true });
-    }
-
     const payBtnTextElement = document.querySelector('span.pay-btn__text');
     const currentUrl = window.location.href;
 
@@ -33,16 +11,13 @@ function checkAndRedirect() {
 
     if (payBtnTextElement && currentUrl.includes('epicvin.com/check-vin-number-and-get-the-vehicle-history-report/checkout')) {
         console.log('Redirecting to login page');
-        // If element is found and URL matches, redirect to the login page
         window.location.href = 'https://epicvin.com/login';
     } else if (currentUrl === 'https://epicvin.com/login') {
         console.log('On login page, filling form');
-        // If on the login page, fill in the login form and submit
         fillAndSubmitLoginForm();
     } else if (currentUrl.includes('https://epicvin.com/check-vin-number-and-get-the-vehicle-history-report/report')) {
-        console.log('Now we can scrape data');
+        console.log('wait till data is loaded ...');
         observeElement();
-        // scrapeReportData();
     } else {
         console.log('No matching URL found');
     }
@@ -66,9 +41,33 @@ function fillAndSubmitLoginForm() {
     }
 }
 
+function observeElement() {
+    const targetElementSelector = "#outline > div.report-head > div.report-head__text > div:nth-child(1) > h1";
+
+    // Create a MutationObserver to watch for changes in the DOM
+    const observer = new MutationObserver((mutationsList) => {
+        for (const mutation of mutationsList) {
+            if (mutation.type === 'childList') {
+                const element = document.querySelector(targetElementSelector);
+                if (element) {
+                    console.log('Element rendered');
+                    console.log('now we can scrape data');
+                    scrapeReportData(); // Call the scraping function
+                    observer.disconnect(); // Stop observing after the element is found
+                    break;
+                }
+            }
+        }
+    });
+
+    // Start observing the document body for changes
+    observer.observe(document.body, { childList: true, subtree: true });
+}
+
 function scrapeReportData() {
     console.log('Scraping report data');
-
+    const vvin = document.querySelector("#outline > div.report-head > div.report-head__text > div:nth-child(1) > div.report-head__vin > p.report-head__vin-banner").textContent
+    const vin = vvin.split(' ')[1];
     // Initialize an object to store all the scraped data
     const reportData = {
         carName: '',
@@ -351,16 +350,16 @@ function scrapeReportData() {
 
     console.log('Report Data:', reportData);
 
-    sendReportData(reportData)
+    sendReportData(vin, reportData)
     // Now you can send this reportData object with a POST request
 }
 
-function sendReportData(reportData) {
+function sendReportData(vin, reportData) {
     const newData = { data: JSON.stringify(reportData) };
 
-    fetch('https://bb.tlgroup.ge/api/getExtensionData',
+    fetch('https://flex.tlgroup.ge/p/carHistory/putVinData/' + vin,
         {
-            method: 'POST',
+            method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
             },

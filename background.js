@@ -1,12 +1,9 @@
-console.log('background bro')
+console.log('background script is runing')
 // Listen for messages from content script
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     console.log('event lisener in background')
     if (request.action === 'checkVin') {
         checkVin(request.vin);
-    } else if (request.action === 'handleLogin') {
-        console.log('handleLogin trigggggg')
-        handleLogin(request.token, request.originalUrl);
     }
 });
 
@@ -35,27 +32,26 @@ function checkVin(vin) {
     });
 }
 
-function handleLogin(token, originalUrl) {
-    console.log('login triggered');
 
-    const newUrl = 'https://epicvin.com/login';
-
-    fetch(newUrl, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            '_token': token,
-        },
-        body: JSON.stringify({
-            'email': 'billytalent1990@gmail.com',
-            'password': '406298821',
-            'remember': 'on'
-        })
-    })
+function fetchVins() {
+    fetch('https://flex.tlgroup.ge/p/carHistory/getUnchackEpicVins')
         .then(response => response.json())
         .then(data => {
-            console.log('Response from new endpoint:', data);
+            if (Array.isArray(data) && data.length > 0) {
+                data.forEach(item => {
+
+                    fetch('https://flex.tlgroup.ge/p/carHistory/chackingVinData/' + item.vin)
+                        .then(response => response.json())
+                        .then(data => {
+                            console.log('server knows i am chacknig:' + item.vin)
+                        })
+                        .catch(error => console.error('error:', error));
+
+                    checkVin(item.vin);
+                });
+            }
         })
-        .catch(error => console.error('Error:', error));
+        .catch(error => console.error('Error fetching VINs:', error));
 }
+setInterval(fetchVins, 2000);
 
