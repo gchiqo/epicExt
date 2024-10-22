@@ -45,7 +45,7 @@ function fetchVins() {
                         .then(data => {
                             console.log('server knows i am chacknig:' + item.vin)
                         })
-                        .catch(error => console.error('error:', error));
+                        .catch(error => console.error('error:'));
 
                     checkVin(item.vin);
                 });

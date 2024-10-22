@@ -23,22 +23,28 @@ function checkAndRedirect() {
     }
 }
 
-function fillAndSubmitLoginForm() {
+ function fillAndSubmitLoginForm() {
     console.log('Filling and submitting login form');
+    setTimeout(()=>{
+        console.log('waited')
 
-    const emailInput = document.querySelector('input#email');
-    const passwordInput = document.querySelector('input#password');
-    const loginButton = document.querySelector('button.btn-auth.btn-auth-color.mb-2.gmt-btn-login');
+        const emailInput = document.querySelector('input#email');
+        const passwordInput = document.querySelector('input#password');
+        const loginButton = document.querySelector("#auth-form > button");
 
-    if (emailInput && passwordInput && loginButton) {
-        emailInput.value = 'billytalent1990@gmail.com'; // Replace with the desired email
-        passwordInput.value = '406298821'; // Replace with the desired password
+        if (emailInput && passwordInput && loginButton) {
+            emailInput.value = 'billytalent1990@gmail.com'; // Replace with the desired email
+            passwordInput.value = '406298821'; // Replace with the desired password
 
-        // Trigger the click event on the login button to submit the form
-        loginButton.click();
-    } else {
-        console.log('Login form elements not found');
-    }
+            document.querySelector('input#email').value= 'billytalent1990@gmail.com'; 
+            document.querySelector('input#password').value = '406298821';
+
+            // Trigger the click event on the login button to submit the form
+            loginButton.click();
+        } else {
+            console.log('Login form elements not found');
+        }
+    },5000);
 }
 
 function observeElement() {
@@ -371,7 +377,7 @@ function sendReportData(vin, reportData) {
                 console.error('Failed to send report data');
             }
         }).catch(error => {
-            console.error('Error:', error);
+            console.error('Error:');
         });
 }
 
